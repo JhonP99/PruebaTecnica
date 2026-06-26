@@ -25,6 +25,7 @@ public class LoanController {
     private final LoanPort loanPort;
 
     @PostMapping("/request")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Loan> requestLoan(@Valid @RequestBody LoanRequestDto dto, Authentication authentication) {
         Loan requested = loanUseCaseService.requestLoan(authentication.getName(), new Loan(null, null, dto.amount(), dto.termMonths(), null, null));
         return ResponseEntity.ok(requested);
@@ -40,21 +41,20 @@ public class LoanController {
 
 
     @PutMapping("/{id}/approve")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Loan> approveLoan(@PathVariable Long id) {
         return ResponseEntity.ok(loanUseCaseService.reviewLoan(id, LoanStatus.APPROVED));
     }
 
 
     @PutMapping("/{id}/reject")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Loan> rejectLoan(@PathVariable Long id) {
         return ResponseEntity.ok(loanUseCaseService.reviewLoan(id, LoanStatus.REJECTED));
     }
 
 
     @GetMapping(value = "/stream-pending", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
     public Flux<Loan> streamPendingLoans() {
         return Flux.interval(Duration.ofSeconds(3))
                 .flatMapIterable(sequence -> loanPort.findAllPending());

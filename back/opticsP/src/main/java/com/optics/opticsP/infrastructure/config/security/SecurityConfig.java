@@ -15,6 +15,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import org.springframework.security.config.Customizer;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -27,6 +34,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -37,16 +45,16 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/v1/loans/*/approve").hasAuthority("ADMIN")
-                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/v1/loans/*/reject").hasAuthority("ADMIN")
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/loans/stream-pending").hasAuthority("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/v1/loans/*/approve").hasRole("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/v1/loans/*/reject").hasRole("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/loans/stream-pending").hasAnyRole("ADMIN", "USER")
 
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/loans/request").hasAuthority("USER")
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/loans", "/api/v1/loans/*/status").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/loans/request").hasRole("USER")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/loans", "/api/v1/loans/*/status").hasAnyRole("ADMIN", "USER")
 
-                        .requestMatchers("/api/v1/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/v1/user/**").hasAuthority("USER")
-                        .requestMatchers("/api/v1/optica/buscar/**").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/user/**").hasRole("USER")
+                        .requestMatchers("/api/v1/optica/buscar/**").hasAnyRole("ADMIN", "USER")
 
                         .anyRequest().authenticated()
                 )
@@ -73,6 +81,36 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "http://localhost:5174"
+        ));
+
+        configuration.setAllowedMethods(List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
+        ));
+
+        configuration.setAllowedHeaders(List.of("*"));
+
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 
 }

@@ -1,13 +1,13 @@
 
-import type {Loan, LoanRequest} from "../types/loan.tsx";
-import axiosApi from "./axios.api.tsx";
+import api from "./axios.api.tsx";
+import type { Loan, LoanRequest } from "../types/loan";
 
 
 export const requestLoan = async (
     request: LoanRequest
 ): Promise<Loan> => {
 
-    const response = await axiosApi.post<Loan>(
+    const response = await api.post<Loan>(
         "/api/v1/loans/request",
         request
     );
@@ -20,7 +20,7 @@ export const getLoanStatus = async (
     id: number
 ): Promise<Loan> => {
 
-    const response = await axiosApi.get<Loan>(
+    const response = await api.get<Loan>(
         `/api/v1/loans/${id}/status`
     );
 
@@ -32,7 +32,7 @@ export const approveLoan = async (
     id: number
 ): Promise<Loan> => {
 
-    const response = await axiosApi.put<Loan>(
+    const response = await api.put<Loan>(
         `/api/v1/loans/${id}/approve`
     );
 
