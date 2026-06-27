@@ -8,4 +8,5 @@ public interface LoanPort {
     Loan save(Loan loan);
     Optional<Loan> findById(Long id);
     List<Loan> findAllPending();
+    List<Loan> findByUsername(String username);
 }

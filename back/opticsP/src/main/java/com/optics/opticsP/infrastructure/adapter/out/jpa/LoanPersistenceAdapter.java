@@ -37,4 +37,23 @@ public class LoanPersistenceAdapter implements LoanPort {
                 .map(e -> new Loan(e.getId(), e.getUsername(), e.getAmount(), e.getTermMonths(), e.getStatus(), e.getCreatedAt()))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<Loan> findByUsername(String username) {
+
+        return repository.findByUsername(username)
+                .stream()
+                .map(e -> new Loan(
+                        e.getId(),
+                        e.getUsername(),
+                        e.getAmount(),
+                        e.getTermMonths(),
+                        e.getStatus(),
+                        e.getCreatedAt()
+                ))
+                .toList();
+
+    }
+
+
 }

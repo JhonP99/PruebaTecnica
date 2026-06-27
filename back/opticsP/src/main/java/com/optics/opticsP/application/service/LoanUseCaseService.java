@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -57,5 +58,10 @@ public class LoanUseCaseService {
         );
 
         return loanPort.save(updatedLoan);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Loan> getLoansByUsername(String username) {
+        return loanPort.findByUsername(username);
     }
 }

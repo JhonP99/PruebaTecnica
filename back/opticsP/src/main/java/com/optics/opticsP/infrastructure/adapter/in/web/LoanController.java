@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/loans")
@@ -58,5 +59,14 @@ public class LoanController {
     public Flux<Loan> streamPendingLoans() {
         return Flux.interval(Duration.ofSeconds(3))
                 .flatMapIterable(sequence -> loanPort.findAllPending());
+    }
+
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<Loan>> getMyLoans(Authentication authentication) {
+        return ResponseEntity.ok(
+                loanUseCaseService.getLoansByUsername(authentication.getName())
+        );
+
     }
 }
