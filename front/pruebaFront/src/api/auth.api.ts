@@ -1,13 +1,14 @@
-import api from "./axios.api.tsx";
+import api from "./axios.api.ts";
+
 import type {
     LoginRequest,
     RegisterRequest,
     AuthResponse,
 } from "../types/auth";
 
-export const login = async (
+export async function login(
     request: LoginRequest
-): Promise<AuthResponse> => {
+): Promise<AuthResponse> {
 
     const response = await api.post<AuthResponse>(
         "/api/auth/login",
@@ -15,11 +16,11 @@ export const login = async (
     );
 
     return response.data;
-};
+}
 
-export const register = async (
+export async function register(
     request: RegisterRequest
-): Promise<AuthResponse> => {
+): Promise<AuthResponse> {
 
     const response = await api.post<AuthResponse>(
         "/api/auth/register",
@@ -27,4 +28,4 @@ export const register = async (
     );
 
     return response.data;
-};
+}

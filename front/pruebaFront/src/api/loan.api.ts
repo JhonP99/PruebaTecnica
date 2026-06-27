@@ -1,6 +1,7 @@
 
-import api from "./axios.api.tsx";
-import type { Loan, LoanRequest } from "../types/loan";
+import api from "./axios.api.ts";
+import type { Loan, LoanRequest } from "../types/loan.ts";
+import {fetchEventSource} from "@microsoft/fetch-event-source";
 
 
 export const requestLoan = async (
@@ -51,3 +52,32 @@ export const rejectLoan = async (
     return response.data;
 
 };
+
+export const getMyLoans = async (): Promise<Loan[]> => {
+
+    const response = await api.get<Loan[]>(
+        "/api/v1/loans/my"
+    );
+
+    return response.data;
+
+};
+
+export function streamPendingLoans(
+    onMessage: (loan: Loan) => void
+) {
+    const token = localStorage.getItem("token");
+    return fetchEventSource(
+        "http://localhost:8080/api/v1/loans/stream-pending",
+        { headers: { Authorization: `Bearer ${token}`},
+            onmessage(event) {
+                const loan: Loan = JSON.parse(event.data);
+                onMessage(loan);
+            },
+            onerror(error) {
+                console.error(error);
+                throw error;
+            },
+        }
+    );
+}
